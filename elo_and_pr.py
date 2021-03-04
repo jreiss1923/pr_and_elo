@@ -6,8 +6,10 @@ import argparse
 
 load_dotenv()
 
+# uses 32 k factor as the classical standard for chess and for a (imo) good-sized swing in points
 kkr_elo_calc = elo.Elo(k_factor=32, rating_class=float, initial=1500, beta=200)
 
+# if you want to use this for yourself, replace this with your own mysql credentials
 elo_database = mysql.connector.connect(
     host=os.getenv('HOST'),
     user=os.getenv('USERNAME_DB'),
@@ -18,6 +20,7 @@ elo_database = mysql.connector.connect(
 cursor = elo_database.cursor()
 
 
+# adds user to the database with a default starting ELO of 1500
 def add_user(username):
     try:
         query = "INSERT INTO elo (username, elo) VALUES ('" + username + "', 1500)"
@@ -30,6 +33,7 @@ def add_user(username):
         print(repr(e))
 
 
+# adds a box (your choice) to the db. Assumes both users exist already
 def add_match(winner, loser, gw, gl):
 
     try:
@@ -63,6 +67,7 @@ def add_match(winner, loser, gw, gl):
         print(repr(e))
 
 
+# gets the top x users by ELO. If there are less than x users, just gets all.
 def get_top_x(top_num):
     try:
         query = "SELECT username FROM elo ORDER BY elo DESC LIMIT " + str(top_num)
@@ -80,6 +85,8 @@ def get_top_x(top_num):
         print(repr(e))
 
 
+# resets user's ELO and deletes their matches from match history
+# should use if temporarily banning or suspected cheating/wintrading has occurred
 def reset_user(username):
     try:
         query = "UPDATE elo SET elo=1500 WHERE username='" + username + "'"
@@ -95,6 +102,7 @@ def reset_user(username):
         print(repr(e))
 
 
+# deletes user and match history
 def delete_user(username):
     try:
         query = "DELETE FROM elo WHERE username='" + username + "'"
@@ -110,15 +118,27 @@ def delete_user(username):
         print(repr(e))
 
 
+# these are the commands for the CLI - only works if you have your own MySQL db (for now)
 parser = argparse.ArgumentParser()
+
+# elo_and_pr {-d | -deleteUser} [username]
 parser.add_argument("-d", "-deleteUser", nargs='?', help="Deletes a user from the PR, as well as deleting all their matches played", type=str)
+
+# elo_and_pr {-r | -resetUser} [username]
 parser.add_argument("-r", "-resetUser", nargs='?', help="Resets a user's ELO to 1500 as well as deleting all their matches played", type=str)
+
+# elo_and_pr {-u | -addUser} [username]
 parser.add_argument("-u", "-addUser", nargs='?', help="Adds a user to the PR with a default ELO of 1500", type=str)
+
+# elo_and_pr {-t | -getTop} [length]
 parser.add_argument("-t", "-getTop", nargs='?', help="Gets the top x users in the PR", type=int)
+
+# elo_and_pr {-m | -addMatch} [winner] {-m | -addMatch} [loser] {-m | -addMatch} [won] {-m | -addMatch} [lost]
 parser.add_argument("-m", "-addMatch", action="append", nargs='?', help="Adds a match to the PR and changes ELO: Usage: -m [winner], -m [loser], -m [winner_games_won], -m [loser_games_won]", type=str)
 
 args = parser.parse_args()
 
+# wish this datatype was better :(
 if args.d is not None:
     delete_user(args.d)
 if args.r is not None:
@@ -128,5 +148,5 @@ if args.u is not None:
 if args.t is not None:
     get_top_x(args.t)
 if args.m is not None:
-    add_match("jreiss1923", "SmashDee", 2, 1)
+    add_match(args.m[0], args.m[1], args.m[2], args.m[3])
 
