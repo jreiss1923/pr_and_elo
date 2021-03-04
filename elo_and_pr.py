@@ -2,6 +2,7 @@ import elo
 import mysql.connector
 from dotenv import load_dotenv
 import os
+import argparse
 
 load_dotenv()
 
@@ -58,7 +59,7 @@ def add_match(winner, loser, gw, gl):
         elo_database.commit()
 
         print("Successfully logged match between " + winner + "(" + str(gw) + ") and " + loser + "(" + str(gl) + ")")
-    except Exception as e:
+    except (Exception, IndexError) as e:
         print(repr(e))
 
 
@@ -107,3 +108,25 @@ def delete_user(username):
         print("Deleted " + username + "'s elo and match history")
     except Exception as e:
         print(repr(e))
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument("-d", "-deleteUser", nargs='?', help="Deletes a user from the PR, as well as deleting all their matches played", type=str)
+parser.add_argument("-r", "-resetUser", nargs='?', help="Resets a user's ELO to 1500 as well as deleting all their matches played", type=str)
+parser.add_argument("-u", "-addUser", nargs='?', help="Adds a user to the PR with a default ELO of 1500", type=str)
+parser.add_argument("-t", "-getTop", nargs='?', help="Gets the top x users in the PR", type=int)
+parser.add_argument("-m", "-addMatch", action="append", nargs='?', help="Adds a match to the PR and changes ELO: Usage: -m [winner], -m [loser], -m [winner_games_won], -m [loser_games_won]", type=str)
+
+args = parser.parse_args()
+
+if args.d is not None:
+    delete_user(args.d)
+if args.r is not None:
+    reset_user(args.r)
+if args.u is not None:
+    add_user(args.u)
+if args.t is not None:
+    get_top_x(args.t)
+if args.m is not None:
+    add_match("jreiss1923", "SmashDee", 2, 1)
+
