@@ -35,7 +35,7 @@ This is a Power Ranking (PR) and ELO rating system that is compatible with any g
 ## Extras
 
 <ul>
-  <li>If you dislike the ELO change from match to match, or you want to start your users at a differnt ELO, you can change these on line 17.</li>
+  <li>If you dislike the ELO change from match to match, or you want to start your users at a different ELO, you can change these on line 17.</li>
   <li>If you want to change the title of a page on your spreadsheet or you want to change the layout, remember to changes lines 33 and 34, as well as the function find_elo starting on line 119</li>
   <li>Match history is saved across account resets or deletions so viewers can see why a user's ELO has changed despite the reset or deletion of another user's account</li>
 </ul>
