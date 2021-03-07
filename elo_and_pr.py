@@ -1,15 +1,23 @@
+from __future__ import print_function
 import elo
 import mysql.connector
 from dotenv import load_dotenv
 import os
 import argparse
+import pickle
+import os.path
+from googleapiclient.discovery import build
+from google_auth_oauthlib.flow import InstalledAppFlow
+from google.auth.transport.requests import Request
 
+# load hidden variables from .env file located in same folder
 load_dotenv()
 
 # uses 32 k factor as the classical standard for chess and for a (imo) good-sized swing in points
 kkr_elo_calc = elo.Elo(k_factor=32, rating_class=float, initial=1500, beta=200)
 
 # if you want to use this for yourself, replace this with your own mysql credentials
+# connect to mysql db locally
 elo_database = mysql.connector.connect(
     host=os.getenv('HOST'),
     user=os.getenv('USERNAME_DB'),
@@ -33,7 +41,7 @@ def add_user(username):
         print(repr(e))
 
 
-# adds a box (your choice) to the db. Assumes both users exist already
+# adds a match to the db and updates elo. Assumes both users exist already
 def add_match(winner, loser, gw, gl):
 
     try:
