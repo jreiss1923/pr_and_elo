@@ -12,9 +12,7 @@ This is a Power Ranking (PR) and ELO rating system that is compatible with any g
   <li>Keeps track of matches and sets within those matches</li>
 </ul>
 
-## Setup
-
-#### Prerequisites:
+## Prerequisites
 
 <ul>
   <li>Python version 3.6 or higher</li>
@@ -22,6 +20,8 @@ This is a Power Ranking (PR) and ELO rating system that is compatible with any g
   <li>A blank .env file</li>
   <li>A Google Sheets set up similarly to https://docs.google.com/spreadsheets/d/1mOQm0ziJRMZ-JQPBnQmcFp6xHdyJphcGkUWqBiVeoAI/edit?usp=sharing, specifically in the ELO and Match History pages. Make sure to name those pages the correct name, otherwise this code won't work!</li>
 </ul>
+
+## Setup
 
 <ol>
   <li>Go to the Google Sheets Quickstart (https://developers.google.com/sheets/api/quickstart/python) page and follow steps 1 and 2 ONLY. When the page prompts you to set up a project, choose a name, then pick "Desktop" for the type of application.</li>
