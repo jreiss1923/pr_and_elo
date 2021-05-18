@@ -30,8 +30,8 @@ cursor = elo_database.cursor()
 # spreadsheet data
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
 SPREADSHEET_ID = os.getenv('SPREADSHEET_ID')
-RANGE_NAME_ELO = 'ELO!A3:E11'
-RANGE_NAME_MATCHES = 'Match History!A3:D20'
+RANGE_NAME_ELO = 'ELO!A3:E1000'
+RANGE_NAME_MATCHES = 'Match History!A3:D1000'
 
 
 # log into google sheets using given credentials
@@ -95,7 +95,7 @@ def update_sheet_data(values, range_code):
 # adds user to the database with a default starting ELO of 1500
 def add_user(username):
     try:
-        query = "INSERT INTO elo (username, elo, pr) VALUES ('" + username + "', 1500, 0)"
+        query = "INSERT INTO elo (username, elo, pr) VALUES ('" + username + "', 1500, 1)"
         cursor.execute(query)
 
         elo_database.commit()
@@ -192,6 +192,7 @@ def add_match(winner, loser, gw, gl):
         print("Successfully logged match between " + winner + "(" + str(gw) + ") and " + loser + "(" + str(gl) + ")")
     except (Exception, IndexError) as e:
         print("Was not able to log match: Check to see if both users are in the PR")
+        print(repr(e))
 
 
 # returns a list of the top x users by ELO
@@ -248,6 +249,8 @@ def reset_user(username):
 
         elo_data = get_sheet_data(RANGE_NAME_ELO)
         elo_range = find_elo("ELO", elo_data, username)
+
+        print(elo_range)
 
         values = [
             [
