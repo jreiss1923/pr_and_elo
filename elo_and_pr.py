@@ -296,6 +296,32 @@ def delete_user(username):
         print(repr(e))
 
 
+# edits ELO score for a user
+def edit_elo(username, elo):
+    try:
+        query = "UPDATE elo SET elo=" + elo + " WHERE username='" + username + "'"
+        cursor.execute(query)
+
+        elo_data = get_sheet_data(RANGE_NAME_ELO)
+        elo_range = find_elo("ELO", elo_data, username)
+
+        values = [
+            [
+                int(elo)
+            ]
+        ]
+
+        update_sheet_data(values, elo_range)
+
+        elo_database.commit()
+
+        update_pr()
+
+        print("Set " + username + "'s ELO to " + elo)
+    except Exception as e:
+        print(repr(e))
+
+
 def initialize_parser():
     # these are the commands for the CLI - only works if you have your own MySQL db (for now)
     parser = argparse.ArgumentParser()
@@ -316,7 +342,12 @@ def initialize_parser():
 
     # elo_and_pr {-m | -addMatch} [winner] {-m | -addMatch} [loser] {-m | -addMatch} [won] {-m | -addMatch} [lost]
     parser.add_argument("-m", "-addMatch", action="append", nargs='?',
-                        help="Adds a match to the PR and changes ELO: Usage: -m [winner], -m [loser], -m [winner_games_won], -m [loser_games_won]",
+                        help="Adds a match to the PR and changes ELO",
+                        type=str)
+
+    # elo_and_pr {-e | -editELO} [username] {-e | -editELO} [newScore]
+    parser.add_argument("-e", "-editELO", action="append", nargs="?",
+                        help="Edits a user's ELO rating",
                         type=str)
 
     args = parser.parse_args()
@@ -332,6 +363,8 @@ def initialize_parser():
         get_top_x(args.t)
     if args.m is not None:
         add_match(args.m[0], args.m[1], args.m[2], args.m[3])
+    if args.e is not None:
+        edit_elo(args.e[0], args.e[1])
 
 
 def main():
